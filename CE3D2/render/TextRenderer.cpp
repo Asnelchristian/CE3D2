@@ -1,5 +1,9 @@
 #include "CE3D2/render/TextRenderer.h"
 
+// TODO on fedora assimp-devel package is needed, so upgrade vagrantfile
+// TODO + mention this in README
+#include <assimp/scene.h>
+
 #include "CE3D2/math/LinearAffineFunction.h"
 #include "CE3D2/math/math.h"
 
