@@ -1,9 +1,11 @@
 #ifndef CE3D2_MODELS_LOADERS_WAVEFRONTOBJ_H
 #define CE3D2_MODELS_LOADERS_WAVEFRONTOBJ_H
 
-#include <istream>
 #include <fstream>
-#include <bits/unordered_map.h>
+#include <istream>
+#include <memory>
+#include <sstream>
+#include <unordered_map>
 
 #include "CE3D2/models/LineModel.h"
 
@@ -14,54 +16,103 @@ namespace Models
 {
 namespace Loaders
 {
-    enum WavefrontObjCommands {
-        vt, f, o
+    enum WavefrontObjCommands
+    {
+        vertex, face, object
     };
 
-    LineModel load_wavefront_obj(std::string filename)
+    std::vector<std::shared_ptr<LineModel>> load_wavefront_obj(std::string filename)
     {
         std::ifstream file(filename, std::ios::in);
-        LineModel model = load_wavefront_obj(file);
+        auto model = load_wavefront_obj(file);
         file.close();
         return model;
     }
 
-    LineModel load_wavefront_obj(std::istream& stream)
+    std::vector<std::shared_ptr<LineModel>> load_wavefront_obj(std::istream& stream)
     {
         // Build command map.
         std::unordered_map<std::string, WavefrontObjCommands> command_map = {
-            {"vt", WavefrontObjCommands::vt},
-            {"f", WavefrontObjCommands::f},
-            {"o", WavefrontObjCommands::o}
+            {"vt", WavefrontObjCommands::vertex},
+            {"f", WavefrontObjCommands::face},
+            {"o", WavefrontObjCommands::object}
         };
+
+        std::vector<std::shared_ptr<LineModel>> models;
+        std::shared_ptr<LineModel> current_model;
 
         while (!stream.eof())
         {
-            std::string command;
-            stream >> command;
+            std::string line;
+            std::getline(stream, line);
 
+            std::istringstream line_stream(line);
+
+            std::string command;
+            line_stream >> command;
+
+            WavefrontObjCommands cmd;
             try
             {
-                command_map.at(command);
+                cmd = command_map.at(command);
             }
-            catch (std::out_of_range ex)
+            catch (std::out_of_range)
             {
-                // Unknown command, ignore.
+                // Unknown command, ignore line. Comments also count as
+                // unknown, so they are properly ignored.
+                continue;
             }
 
-            if (command == "#")
+            switch (cmd)
             {
+                case WavefrontObjCommands::object:
+                {
+                    // TODO Check for empty strings.
+                    std::string name;
+                    line_stream >> name;
+                    current_model = std::make_shared<LineModel>(name);
+                    models.push_back(current_model);
+                    break;
+                }
+                case WavefrontObjCommands::vertex:
+                {
+                    if (!current_model)
+                    {
+                        // Push back new model without name.
+                        current_model = std::make_shared<LineModel>();
+                        models.push_back(current_model);
+                    }
 
-            }
-            else if (command == "vt")
-            {
+                    std::vector<PrecisionType> vector;
 
-            }
-            else
-            {
-                // Invalid command, throw error.
+                    while (true)
+                    {
+                        PrecisionType value;
+                        line_stream >> value;
+
+                        if (line_stream.eof())
+                        {
+                            break;
+                        }
+                        else if (line_stream.fail())
+                        {
+                            // TODO? Ignore strategy or throw error?
+                        }
+
+                        vector.push_back(value);
+                    }
+
+                    current_model->vectors().emplace_back(vector.size());
+                    std::copy(vector.cbegin(), vector.cend(), current_model->vectors().back().begin());
+
+                    break;
+                }
+                case WavefrontObjCommands::face:
+                    break;
             }
         }
+
+        return models;
     }
 }
 }
