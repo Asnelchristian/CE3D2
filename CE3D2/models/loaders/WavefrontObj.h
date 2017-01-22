@@ -10,6 +10,12 @@
 #include "CE3D2/models/LineModel.h"
 
 
+// TODO Document special capabilities:
+// TODO   - As many values supported for `v`, not just 3 or 4
+// TODO   - Material stmts and other commands are unsupported (usemtl, vn, vt, g, s, different
+// TODO     face syntaxes like 2//1)
+// TODO   - Comments have to be in a separate in a line and line has to start with `#`
+
 namespace CE3D2
 {
 namespace Models
@@ -18,7 +24,7 @@ namespace Loaders
 {
     enum WavefrontObjCommands
     {
-        vertex, face, object
+        comment, face, object, vertex
     };
 
     std::vector<std::shared_ptr<LineModel>> load_wavefront_obj(std::string filename)
@@ -35,7 +41,8 @@ namespace Loaders
         std::unordered_map<std::string, WavefrontObjCommands> command_map = {
             {"vt", WavefrontObjCommands::vertex},
             {"f", WavefrontObjCommands::face},
-            {"o", WavefrontObjCommands::object}
+            {"o", WavefrontObjCommands::object},
+            {"#", WavefrontObjCommands::comment}
         };
 
         std::vector<std::shared_ptr<LineModel>> models;
@@ -58,13 +65,23 @@ namespace Loaders
             }
             catch (std::out_of_range)
             {
-                // Unknown command, ignore line. Comments also count as
-                // unknown, so they are properly ignored.
-                continue;
+                // Unknown command.
+                // TODO Make proper error and message (including the invalid command)
+                throw new error_t();
             }
 
             switch (cmd)
             {
+                case WavefrontObjCommands::comment:
+                {
+                    // TODO
+                    break;
+                }
+                case WavefrontObjCommands::face:
+                {
+                    // TODO
+                    break;
+                }
                 case WavefrontObjCommands::object:
                 {
                     // TODO Check for empty strings.
@@ -96,7 +113,7 @@ namespace Loaders
                         }
                         else if (line_stream.fail())
                         {
-                            // TODO? Ignore strategy or throw error?
+                            // TODO Throw error
                         }
 
                         vector.push_back(value);
@@ -107,8 +124,6 @@ namespace Loaders
 
                     break;
                 }
-                case WavefrontObjCommands::face:
-                    break;
             }
         }
 
