@@ -27,7 +27,7 @@ namespace Loaders
         comment, face, object, vertex
     };
 
-    std::vector<std::shared_ptr<LineModel>> load_wavefront_obj(std::string filename)
+    std::vector<std::shared_ptr<LineModel>> load_wavefront_obj(std::string const& filename)
     {
         std::ifstream file(filename, std::ios::in);
         auto model = load_wavefront_obj(file);
