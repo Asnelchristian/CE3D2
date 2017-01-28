@@ -21,8 +21,8 @@ namespace Loaders
     ///   - `.obj`
     ///
     /// @param filename The filename to load the model from.
-    /// @returns        The loaded model.
-    LineModel load(std::string filename)
+    /// @returns        A list of loaded models.
+    std::vector<std::shared_ptr<LineModel>> load(std::string filename)
     {
         std::string extension = boost::filesystem::path(filename).extension()
             .string().substr(1);

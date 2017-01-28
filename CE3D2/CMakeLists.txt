@@ -27,7 +27,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     include_directories("${PROJECT_SOURCE_DIR}/..")
 
     find_package(Boost
-                 COMPONENTS system
+                 COMPONENTS system filesystem
                  REQUIRED)
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
@@ -37,6 +37,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     add_library(${CMAKE_PROJECT_NAME}
                 SHARED
                 ${SRC})
+
+    if(Boost_FOUND)
+        include_directories(${Boost_INCLUDE_DIRS})
+        target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES})
+    endif()
 
     install(TARGETS ${CMAKE_PROJECT_NAME}
             LIBRARY DESTINATION lib)
