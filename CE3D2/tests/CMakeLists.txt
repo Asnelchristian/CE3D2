@@ -2,6 +2,22 @@ set(CE3D2_TEST_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 # Adds a new test target
 function(add_ce3d2_test target)
+    # Copy test files if existant.
+    foreach(file ${ARGN})
+        get_filename_component(test_files_directory ${file} NAME_WE)
+
+        if(exists(${test_files_directory}))
+            file(GLOB test_files "${test_files_directory}/*")
+
+            foreach(test_file ${test_files})
+                add_custom_command(OUTPUT ${test_files_directory}/${test_file}
+                                   COMMAND "cp ${test_files_directory}/${test_file}"
+                                   DEPENDS ${test_files_directory}/${test_file}
+                                   COMMENT "Copying test file ${test_file}...")
+            endforeach()
+        endif()
+    endforeach()
+
     # TestUtilities are embedded automatically into every test.
     list(INSERT ARGN 0 ${CE3D2_TEST_ROOT}/TestUtilities)
 
