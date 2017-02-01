@@ -96,6 +96,7 @@ namespace Loaders
                 }
                 case WavefrontObjCommands::vertex:
                 {
+                    // TODO This check should be done for all commandos.
                     if (!current_model)
                     {
                         // Push back new model without name.

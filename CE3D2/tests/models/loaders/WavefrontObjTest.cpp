@@ -20,6 +20,9 @@ BOOST_AUTO_TEST_SUITE(WavefrontObjTestSuite)
     // TODO
     BOOST_AUTO_TEST_CASE(test_simple)
     {
+        std::string path = get_testfile_path("simple.obj");
+        std::cout << path << std::endl;
+        //BOOST_REQUIRE_EQUAL(1, 2);
         auto models = CE3D2::Models::Loaders::load_wavefront_obj(get_testfile_path("simple.obj"));
 
         BOOST_CHECK_EQUAL(models.size(), 1);
