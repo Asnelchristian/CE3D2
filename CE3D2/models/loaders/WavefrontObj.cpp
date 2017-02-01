@@ -1,6 +1,7 @@
 #include "CE3D2/models/loaders/WavefrontObj.h"
 
 #include "CE3D2/models/loaders/FileFormatException.h"
+#include "CE3D2/models/loaders/InvalidFileException.h"
 
 
 namespace CE3D2
@@ -11,16 +12,21 @@ namespace Loaders
 {
     enum WavefrontObjCommands
     {
-        comment, face, object, vertex
+        comment, face, none, object, vertex
     };
 
     std::vector<std::shared_ptr<LineModel>>
     load_wavefront_obj(std::string const& filename)
     {
-        std::ifstream file(filename, std::ios::in);
-        auto model = load_wavefront_obj(file);
+        std::ifstream file(filename);
+
+        if (!file.is_open()) {
+            throw new InvalidFileException("Can't open file: " + filename);
+        }
+
+        auto models = load_wavefront_obj(file);
         file.close();
-        return model;
+        return models;
     }
 
     std::vector<std::shared_ptr<LineModel>>
@@ -28,6 +34,7 @@ namespace Loaders
     {
         // Build command map.
         std::unordered_map<std::string, WavefrontObjCommands> command_map = {
+            {"", WavefrontObjCommands::none},
             {"v", WavefrontObjCommands::vertex},
             {"f", WavefrontObjCommands::face},
             {"o", WavefrontObjCommands::object},
@@ -39,7 +46,7 @@ namespace Loaders
 
         std::cout << "!!! ENTERED !!!" << std::endl;
 
-        while (true)
+        while (!stream.eof())
         {
             std::string line;
             std::getline(stream, line);
@@ -47,18 +54,12 @@ namespace Loaders
             std::istringstream line_stream(line);
 
             std::string command;
+            // TODO Test with spaces before command
             line_stream >> command;
 
-            if (line_stream.eof())
-            {
-                break;
-            }
-            else if (line_stream.fail())
-            {
-                // TODO Can this occur?
-            }
+            std::cout << "!!! Read command: '" << command << "' !!!" << std::endl;
 
-            std::cout << "!!! IN LOOP !!!" << std::endl;
+            //std::getchar();
 
             WavefrontObjCommands cmd;
             try
@@ -76,6 +77,7 @@ namespace Loaders
             switch (cmd)
             {
                 case WavefrontObjCommands::comment:
+                case WavefrontObjCommands::none:
                 {
                     // TODO
                     break;
@@ -111,16 +113,18 @@ namespace Loaders
                         PrecisionType value;
                         line_stream >> value;
 
+                        if (line_stream.fail())
+                        {
+                            // TODO Throw error
+                            break;
+                        }
+
+                        vector.push_back(value);
+
                         if (line_stream.eof())
                         {
                             break;
                         }
-                        else if (line_stream.fail())
-                        {
-                            // TODO Throw error
-                        }
-
-                        vector.push_back(value);
                     }
 
                     current_model->vectors().emplace_back(vector.size());

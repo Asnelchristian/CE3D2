@@ -10,6 +10,7 @@ namespace Models
 {
 namespace Loaders
 {
+    // TODO Docs
     class FileFormatException: public std::runtime_error
     {
     public:

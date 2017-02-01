@@ -7,7 +7,7 @@ namespace Models
 {
 namespace Loaders
 {
-    InvalidFileException::InvalidFileException(std::string const& filename)
+    InvalidFileException::InvalidFileException(std::string const& message)
     : runtime_error(message)
     {}
 }
