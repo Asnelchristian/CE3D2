@@ -10,6 +10,7 @@
 std::string get_testfile_path(std::string testfile) {
     boost::filesystem::path current_file_path(__FILE__);
     boost::filesystem::path test_directory = current_file_path.stem();
+    test_directory += "Files";
     boost::filesystem::path testfile_path(testfile);
     return (test_directory / testfile_path).string();
 }
