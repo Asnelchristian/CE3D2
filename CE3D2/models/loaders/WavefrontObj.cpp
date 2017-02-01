@@ -39,7 +39,7 @@ namespace Loaders
 
         std::cout << "!!! ENTERED !!!" << std::endl;
 
-        while (!stream.eof())
+        while (true)
         {
             std::string line;
             std::getline(stream, line);
@@ -48,6 +48,15 @@ namespace Loaders
 
             std::string command;
             line_stream >> command;
+
+            if (line_stream.eof())
+            {
+                break;
+            }
+            else if (line_stream.fail())
+            {
+                // TODO Can this occur?
+            }
 
             std::cout << "!!! IN LOOP !!!" << std::endl;
 
