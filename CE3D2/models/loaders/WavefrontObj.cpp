@@ -1,4 +1,6 @@
-#include "WavefrontObj.h"
+#include "CE3D2/models/loaders/WavefrontObj.h"
+
+#include "CE3D2/models/loaders/FileFormatException.h"
 
 
 namespace CE3D2
@@ -26,14 +28,16 @@ namespace Loaders
     {
         // Build command map.
         std::unordered_map<std::string, WavefrontObjCommands> command_map = {
-                {"vt", WavefrontObjCommands::vertex},
-                {"f", WavefrontObjCommands::face},
-                {"o", WavefrontObjCommands::object},
-                {"#", WavefrontObjCommands::comment}
+            {"v", WavefrontObjCommands::vertex},
+            {"f", WavefrontObjCommands::face},
+            {"o", WavefrontObjCommands::object},
+            {"#", WavefrontObjCommands::comment}
         };
 
         std::vector<std::shared_ptr<LineModel>> models;
         std::shared_ptr<LineModel> current_model;
+
+        std::cout << "!!! ENTERED !!!" << std::endl;
 
         while (!stream.eof())
         {
@@ -45,6 +49,8 @@ namespace Loaders
             std::string command;
             line_stream >> command;
 
+            std::cout << "!!! IN LOOP !!!" << std::endl;
+
             WavefrontObjCommands cmd;
             try
             {
@@ -54,7 +60,8 @@ namespace Loaders
             {
                 // Unknown command.
                 // TODO Make proper error and message (including the invalid command)
-                throw new error_t();
+                std::cout << "!!! ERROR !!! '" << command << "'" << std::endl;
+                throw new FileFormatException("Unknown specifier: " + command);
             }
 
             switch (cmd)
